@@ -5,8 +5,6 @@ Aplikasi mobile untuk manajemen penagihan invoice sales (Invoice Collection Mana
 Dokumen acuan pengembangan:
 
 - [`SalesCollect-Product-Backlog.md`](./SalesCollect-Product-Backlog.md) — **apa** yang dibangun dan **mengapa**
-- [`SalesCollect-Technical-Backlog.md`](./SalesCollect-Technical-Backlog.md) — **bagaimana** sistem dibangun
-
 ## Technology Stack
 
 | Layer | Teknologi |
