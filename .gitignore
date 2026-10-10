@@ -49,3 +49,7 @@ example
 .claude/
 CLAUDE.md
 AGENTS.md
+
+# internal docs (tidak untuk repo kelas)
+SalesCollect-Technical-Backlog.md
+supabase/.temp/
