@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "SalesCollect",
+    "slug": "SalesCollect",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "salescollect",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "com.salescollect.app",
+      "icon": "./assets/images/icon.png",
+      "buildNumber": "1"
+    },
+    "android": {
+      "package": "com.salescollect.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/images/android-icon-foreground.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F8FAFC",
+          "image": "./assets/images/icon.png",
+          "imageWidth": 160
+        }
+      ],
+      "expo-sharing",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Akses galeri diperlukan untuk memilih foto bukti pembayaran.",
+          "cameraPermission": "Akses kamera diperlukan untuk mengambil foto bukti pembayaran.",
+          "microphonePermission": false
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
