@@ -7,13 +7,6 @@ Dokumen acuan pengembangan:
 - [`SalesCollect-Product-Backlog.md`](./SalesCollect-Product-Backlog.md) — **apa** yang dibangun dan **mengapa**
 - [`SalesCollect-Technical-Backlog.md`](./SalesCollect-Technical-Backlog.md) — **bagaimana** sistem dibangun
 
-> Status saat ini: **PART 1 — FOUNDATION (TB-01 s/d TB-26)**,
-> **PART 2 — CORE FEATURES (TB-27 s/d TB-69)**,
-> **PART 3 — DASHBOARD & REPORTING (TB-72 s/d TB-82)**,
-> **PART 4 — POLISH & QUALITY (TB-83 s/d TB-88)**,
-> **PART 5 — SECURITY & TESTING (TB-89 s/d TB-92)**, dan
-> **PART 6 — RELEASE (TB-93 s/d TB-97)** selesai.
-
 ## Technology Stack
 
 | Layer | Teknologi |
