@@ -1,5 +1,3 @@
-
-```markdown
 <div align="center">
 
 # 📱 SalesCollect
@@ -268,8 +266,4 @@ Execute hanya untuk role `authenticated` — anon ditolak. Aplikasi menolak rent
 
 ## 📄 Lisensi
 
-Proyek ini dilisensikan di bawah [MIT License](https://www.google.com/search?q=LICENSE). Bebas dikembangkan, dimodifikasi, dan disesuaikan untuk kebutuhan manajemen penagihan internal maupun operasional lainnya.
-
-```
-
-```
+Proyek ini dilisensikan di bawah [MIT License](./LICENSE). Bebas dikembangkan, dimodifikasi, dan disesuaikan untuk kebutuhan manajemen penagihan internal maupun operasional lainnya.
