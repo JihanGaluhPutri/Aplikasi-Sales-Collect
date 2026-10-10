@@ -2,7 +2,8 @@
 
 # 📱 SalesCollect
 
-**Aplikasi mobile untuk manajemen penagihan invoice sales (Invoice Collection Management System).**
+**Aplikasi mobile untuk manajemen penagihan invoice sales**
+*(Invoice Collection Management System)*
 
 ![React Native](https://img.shields.io/badge/React_Native-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![Expo](https://img.shields.io/badge/Expo-000000?style=for-the-badge&logo=expo&logoColor=white)
@@ -15,72 +16,88 @@
 
 ---
 
-📋 **Dokumen acuan pengembangan:**
+## ✨ Fitur Unggulan
 
-- [`SalesCollect-Product-Backlog.md`](./SalesCollect-Product-Backlog.md) — **apa** yang dibangun dan **mengapa**
+| | |
+| :--- | :--- |
+| 🔐 **Autentikasi** | Login, register, lupa/reset password via email (Supabase Auth) |
+| 👥 **Dua Role** | Admin (akses penuh) & Sales (akses terbatas) — hak akses ditegakkan oleh **RLS di database**, bukan sekadar sembunyi UI |
+| 🧾 **Kelola Invoice** | Buat, lihat, edit, hapus invoice; filter status & pencarian |
+| 🔄 **Alur Status** | Transisi linear `belum_ditagih → sudah_ditagih → dibayar` dengan riwayat lengkap & anti lompat status |
+| 📊 **Dashboard** | Ringkasan piutang: total invoice, belum/sudah ditagih, sudah dibayar — dihitung di database |
+| 📈 **Laporan** | Collection report per periode & per sales + **export Excel** |
+| 🧾 **Bukti Bayar** | Upload bukti pembayaran ke Supabase Storage |
+| 🛡️ **Isolasi Data** | Data tiap sales terisolasi — sales A tidak bisa melihat/mengubah invoice sales B |
+
+📖 **Dokumen acuan pengembangan:**
+[`SalesCollect-Product-Backlog.md`](./SalesCollect-Product-Backlog.md) — **apa** yang dibangun dan **mengapa**
+
+---
+
+## 📚 Daftar Isi
+
+- [Technology Stack](#️-technology-stack)
+- [Menjalankan Project](#-menjalankan-project)
+- [Struktur Folder](#-struktur-folder)
+- [Environment & Keamanan](#-environment--keamanan)
+- [Konfigurasi Supabase Auth](#-konfigurasi-supabase-auth)
+- [Database](#️-database)
+- [Model Keamanan (RLS)](#️-model-keamanan-rls)
+- [Lisensi](#-lisensi)
 
 ---
 
 ## 🛠️ Technology Stack
 
 | Layer | Teknologi |
-| --- | --- |
+| :--- | :--- |
 | **Frontend** | React Native, Expo, TypeScript, Expo Router |
-| **Backend** | Supabase (Auth, PostgreSQL, RLS, Storage opsional) |
+| **Backend** | Supabase (Auth, PostgreSQL, RLS, Storage) |
 | **Database** | PostgreSQL dengan Row Level Security |
 
 ### 📐 Arsitektur Sistem
 
-```text
-React Native
-   ↓
-Expo Router → Application Services (services/)
-   ↓
-Supabase Client (lib/supabase.ts)
-   ↓
-Supabase
- ├── Auth
- ├── PostgreSQL
- ├── RLS
- └── Storage (future/optional)
-
+```mermaid
+flowchart TD
+    A["📱 React Native<br/>(Expo + TypeScript)"] --> B["🧭 Expo Router<br/>app/ — screens per role"]
+    B --> C["⚙️ Services Layer<br/>services/ — satu-satunya akses data"]
+    C --> D["🔌 Supabase Client<br/>lib/supabase.ts"]
+    D --> E["🔐 Auth<br/>email + password"]
+    D --> F["🐘 PostgreSQL<br/>+ Row Level Security"]
+    D --> G["📦 Storage<br/>bukti bayar"]
 ```
 
-> ℹ️ Tidak ada backend Express/Node.js terpisah.
+> ℹ️ Tidak ada backend Express/Node.js terpisah — Supabase menangani auth, database, dan storage sekaligus.
 
 ---
 
 ## 🚀 Menjalankan Project
 
-**1. Install dependencies**
+**1️⃣ Install dependencies**
 
 ```bash
 npm install
-
 ```
 
-**2. Siapkan environment**
+**2️⃣ Siapkan environment**
 
 ```bash
 cp .env.example .env
-
 ```
 
 > Isi `EXPO_PUBLIC_SUPABASE_URL` dan `EXPO_PUBLIC_SUPABASE_ANON_KEY` dari **Supabase Dashboard → Project Settings → API**.
 
-**3. Jalankan aplikasi**
+**3️⃣ Jalankan aplikasi**
 
 ```bash
 npx expo start
-
 ```
 
-**4. Pengecekan kualitas**
+**4️⃣ Pengecekan kualitas**
 
 ```bash
 npm run typecheck   # npx tsc --noEmit
 npm run lint        # npx expo lint
-
 ```
 
 ---
@@ -100,21 +117,20 @@ SalesCollect/
 ├── hooks/                # Custom React hooks
 ├── lib/                  # Konfigurasi library (Supabase client)
 ├── services/             # Data access / service layer
-├── supabase/migrations/ # Database migration SQL
+├── supabase/migrations/  # Database migration SQL
 ├── types/                # TypeScript types
 ├── utils/                # Helper (error handling, dst.)
 ├── assets/               # Gambar/font
 ├── .env.example          # Template environment variable
 └── package.json
-
 ```
 
 📌 **Aturan pemakaian:**
 
-* Query database hanya lewat `services/`, bukan dari screen.
-* Warna dan spacing selalu dari `constants/theme.ts`.
-* Screen menggunakan component reusable (`Button`, `Input`, `Card`, `Badge`, `Loading`, `EmptyState`, `ErrorState`).
-* Pesan error user diambil dari `utils/error.ts` (`getUserMessage`).
+- Query database hanya lewat `services/`, bukan dari screen.
+- Warna dan spacing selalu dari `constants/theme.ts`.
+- Screen menggunakan component reusable (`Button`, `Input`, `Card`, `Badge`, `Loading`, `EmptyState`, `ErrorState`).
+- Pesan error user diambil dari `utils/error.ts` (`getUserMessage`).
 
 ---
 
@@ -127,17 +143,17 @@ SalesCollect/
 ```env
 EXPO_PUBLIC_SUPABASE_URL=
 EXPO_PUBLIC_SUPABASE_ANON_KEY=
-
 ```
 
-⛔ **Larangan yang dipatuhi:**
+> ⛔ **Larangan yang dipatuhi:**
+>
+> - Tidak ada service-role key di aplikasi mobile.
+> - Tidak ada password yang disimpan sendiri di database aplikasi.
+> - Tidak ada custom authentication/JWT — password ditangani Supabase Auth.
+> - Tidak ada secret yang di-hardcode di source code.
 
-* Tidak ada service-role key di aplikasi mobile.
-* Tidak ada password yang disimpan sendiri di database aplikasi.
-* Tidak ada custom authentication/JWT — password ditangani Supabase Auth.
-* Tidak ada secret yang di-hardcode di source code.
-
-### 🧪 Development vs Production
+<details>
+<summary>🧪 Development vs Production</summary>
 
 MVP ini memakai **satu project Supabase** untuk development dan production; environment ditentukan oleh isi `.env` saat build (nilai `EXPO_PUBLIC_*` dibundle ke dalam binary), bukan oleh flag terpisah. Untuk produksi yang benar-benar terpisah:
 
@@ -148,9 +164,16 @@ MVP ini memakai **satu project Supabase** untuk development dan production; envi
 
 Build profile EAS ada di `eas.json`: `development`, `preview`, `production` (masing-masing menandai `EXPO_PUBLIC_ENVIRONMENT`). Jangan pernah menaruh service-role key di `.env` aplikasi.
 
-* `gradlew.bat` gagal menemukan `gradle-wrapper.jar` dari path non-ASCII (proyek di OneDrive/`ドキュメント`) — build native dijalankan dari salinan path ASCII, atau langsung via `java -cp gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain`.
-* `GRADLE_USER_HOME` user-level menunjuk ke instalasi scoop (`...\scoop\apps\gradle\current\.gradle`) dan merusak kompilasi Gradle Kotlin DSL (`Unresolved reference 'plugins'`) — build harus meng-override `GRADLE_USER_HOME` ke direktori bersih.
-* NDK/membutuhkan path proyek pendek (batas path panjang Windows) — gunakan root pendek seperti `C:\sc\SalesCollect` untuk build native.
+</details>
+
+<details>
+<summary>🪟 Catatan lingkungan Windows (temuan TB-95 — spesifik mesin dev, bukan bug aplikasi)</summary>
+
+- `gradlew.bat` gagal menemukan `gradle-wrapper.jar` dari path non-ASCII (proyek di OneDrive/`ドキュメント`) — build native dijalankan dari salinan path ASCII, atau langsung via `java -cp gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain`.
+- `GRADLE_USER_HOME` user-level menunjuk ke instalasi scoop (`...\scoop\apps\gradle\current\.gradle`) dan merusak kompilasi Gradle Kotlin DSL (`Unresolved reference 'plugins'`) — build harus meng-override `GRADLE_USER_HOME` ke direktori bersih.
+- NDK membutuhkan path proyek pendek (batas path panjang Windows) — gunakan root pendek seperti `C:\sc\SalesCollect` untuk build native.
+
+</details>
 
 ---
 
@@ -158,8 +181,10 @@ Build profile EAS ada di `eas.json`: `development`, `preview`, `production` (mas
 
 Alur lupa/reset password mengirim link email dengan redirect `Linking.createURL('reset-password')` (lihat `services/authService.ts`):
 
-* **Development (Expo Go / dev client):** `exp://<host>:<port>/--/reset-password`
-* **Production (scheme `salescollect` di `app.json`):** `salescollect://reset-password`
+| Lingkungan | Redirect URL |
+| :--- | :--- |
+| **Development** (Expo Go / dev client) | `exp://<host>:<port>/--/reset-password` |
+| **Production** (scheme `salescollect` di `app.json`) | `salescollect://reset-password` |
 
 > ⚠️ Daftarkan URL tersebut di **Supabase Dashboard → Authentication → URL Configuration → Redirect URLs** sebelum memakai fitur "Lupa Password".
 
@@ -172,7 +197,7 @@ Register/login murni email + password (Supabase Auth). Sesi disimpan oleh Supaba
 Migration berada di `supabase/migrations/` dan berurutan sesuai dependency:
 
 | File | Isi |
-| --- | --- |
+| :--- | :--- |
 | `001_enums.sql` | Enum `user_role`, `invoice_status` |
 | `002_profiles.sql` | Tabel `profiles` + trigger `updated_at` |
 | `003_sales.sql` | Tabel `sales` |
@@ -188,22 +213,36 @@ Migration berada di `supabase/migrations/` dan berurutan sesuai dependency:
 
 ### ⚡ Cara menerapkan migration
 
-**Opsi A — Supabase SQL Editor**
+<details>
+<summary>Opsi A — Supabase SQL Editor</summary>
 
 Buka SQL Editor Supabase, jalankan file migration **berurutan** dari `001` sampai `012`.
 
-**Opsi B — Supabase CLI**
+</details>
+
+<details>
+<summary>Opsi B — Supabase CLI</summary>
 
 ```bash
 supabase init          # sekali saja, menghasilkan supabase/config.toml
 supabase link --project-ref <project-ref>
 supabase db push
-
 ```
+
+</details>
 
 > ⚠️ Migration harus selalu ditambahkan sebagai file SQL — jangan mengubah schema hanya lewat SQL editor tanpa mencatatnya di `supabase/migrations`.
 
 ### 📊 Ringkasan schema
+
+```mermaid
+erDiagram
+    auth_users ||--o| profiles : "1:1 (trigger)"
+    profiles ||--o| sales : "1:1"
+    sales ||--o{ invoices : "miliki"
+    customers ||--o{ invoices : "ditagih"
+    invoices ||--o{ invoice_status_history : "riwayat"
+```
 
 ```text
 auth.users
@@ -219,7 +258,6 @@ auth.users
                      │
                      └── invoice_status_history (id, invoice_id, old_status,
                                                  new_status, changed_by, changed_at)
-
 ```
 
 ---
@@ -227,7 +265,7 @@ auth.users
 ## 🛡️ Model Keamanan (RLS)
 
 | Actor | `profiles` | `sales` | `customers` | `invoices` | `invoice_status_history` |
-| --- | --- | --- | --- | --- | --- |
+| :--- | :--- | :--- | :--- | :--- | :--- |
 | **Admin** | baca/tulis semua | baca/tulis semua | baca/tulis semua | baca/tulis/hapus | baca |
 | **Sales** | baca/tulis profil sendiri | baca record sendiri | baca customer invoice miliknya | baca + update invoice miliknya | baca history invoice miliknya |
 | **Sales A vs Sales B** | terpisah | terpisah | terpisah | **terisolasi** | terisolasi |
@@ -238,7 +276,6 @@ Kepemilikan invoice ditegakkan di database:
 ```sql
 invoices.sales_id = sales.id
 WHERE sales.user_id = auth.uid()
-
 ```
 
 Frontend menyembunyikan menu hanyalah lapisan UX.
@@ -248,22 +285,27 @@ Security sebenarnya: **Supabase RLS + database constraints**.
 
 Update status (sales, screen `sales/invoices/[id]`) hanya lewat RPC `update_invoice_status(invoice_id, new_status)` (migration 011):
 
-* Transisi linear: `belum_ditagih → sudah_ditagih → dibayar`. Mundur, lompat, dan status sama ditolak dengan pesan error.
-* Setiap perubahan menulis `invoice_status_history` (changed_by = pelaku).
-* Row history **tidak bisa** di-INSERT/UPDATE/DELETE langsung oleh klien (baik sales maupun admin) — hanya via fungsi SECURITY DEFINER.
+- Transisi linear: `belum_ditagih → sudah_ditagih → dibayar`. Mundur, lompat, dan status sama ditolak dengan pesan error.
+- Setiap perubahan menulis `invoice_status_history` (changed_by = pelaku).
+- Row history **tidak bisa** di-INSERT/UPDATE/DELETE langsung oleh klien (baik sales maupun admin) — hanya via fungsi SECURITY DEFINER.
 
 ### 📈 Dashboard & report (agregasi database)
 
 Angka dashboard dan collection report dihitung **di database**, bukan diunduh seluruhnya ke device. Tiga fungsi SQL (migration 012), semuanya `SECURITY INVOKER` sehingga hasilnya otomatis ter-scope oleh RLS:
 
-* `dashboard_summary()` — total invoice, belum/sudah ditagih, dibayar, total nominal. Sales hanya melihat invoice miliknya; admin semua.
-* `collection_report_summary(p_start, p_end)` — ringkasan periode (filter `invoice_date`).
-* `collection_report_by_sales(p_start, p_end)` — rincian per sales (diurutkan nama, **tanpa ranking/skor performa**).
+- `dashboard_summary()` — total invoice, belum/sudah ditagih, dibayar, total nominal. Sales hanya melihat invoice miliknya; admin semua.
+- `collection_report_summary(p_start, p_end)` — ringkasan periode (filter `invoice_date`).
+- `collection_report_by_sales(p_start, p_end)` — rincian per sales (diurutkan nama, **tanpa ranking/skor performa**).
 
 Execute hanya untuk role `authenticated` — anon ditolak. Aplikasi menolak rentang tanggal yang salah (mulai > akhir) di client sebelum query dijalankan.
 
 ---
 
+<div align="center">
+
 ## 📄 Lisensi
 
-Proyek ini dilisensikan di bawah [MIT License](./LICENSE). Bebas dikembangkan, dimodifikasi, dan disesuaikan untuk kebutuhan manajemen penagihan internal maupun operasional lainnya.
+Proyek ini dilisensikan di bawah [MIT License](./LICENSE).
+Bebas dikembangkan, dimodifikasi, dan disesuaikan untuk kebutuhan manajemen penagihan internal maupun operasional lainnya.
+
+</div>
