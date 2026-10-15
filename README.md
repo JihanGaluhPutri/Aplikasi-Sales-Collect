@@ -2,8 +2,7 @@
 
 # 📱 SalesCollect
 
-**Aplikasi mobile untuk manajemen penagihan invoice sales**
-*(Invoice Collection Management System)*
+**Aplikasi mobile untuk mencatat dan memantau piutang berdasarkan penjualan**
 
 ![React Native](https://img.shields.io/badge/React_Native-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![Expo](https://img.shields.io/badge/Expo-000000?style=for-the-badge&logo=expo&logoColor=white)
@@ -16,288 +15,143 @@
 
 ---
 
-## ✨ Fitur Unggulan
+## 📖 Latar Belakang
 
-| | |
+Usaha yang penjualannya banyak dijalankan beberapa sales sering mengalami
+masalah piutang yang **sulit dipantau**: siapa berhutang, berapa besar,
+kapan jatuh tempo, dan apakah sudah dibayar — informasi tersebar di buku
+catatan, chat, dan ingatan orang. Akibatnya tagihan terlambat ditagih,
+piutang tidak tertagih, dan pemilik usaha tidak punya gambaran utuh.
+
+## 🎯 Tujuan dan Manfaat
+
+**Tujuan SalesCollect:** menyediakan satu aplikasi tempat seluruh
+penagihan dicatat, ditugaskan, dan dipantau secara terpusat.
+
+**Manfaat:**
+
+- **Pemilik usaha (Admin)** tahu posisi piutang kapan saja, lengkap dengan
+  laporan per periode dan per sales yang bisa diunduh ke Excel.
+- **Sales** jelas menerima daftar tagihan miliknya dan mencatat perkembangan
+  penagihan sampai benar-benar dibayar, lengkap dengan bukti bayar.
+- **Data aman dan tidak tumpang tindih** — sales hanya melihat tagihan yang
+  menjadi tanggung jawabnya.
+- **Riwayat lengkap** — setiap perubahan status penagihan tercatat beserta
+  waktu dan pelakunya.
+
+## ✨ Fitur
+
+| Fitur | Keterangan |
 | :--- | :--- |
-| 🔐 **Autentikasi** | Login, register, lupa/reset password via email (Supabase Auth) |
-| 👥 **Dua Role** | Admin (akses penuh) & Sales (akses terbatas) — hak akses ditegakkan oleh **RLS di database**, bukan sekadar sembunyi UI |
-| 🧾 **Kelola Invoice** | Buat, lihat, edit, hapus invoice; filter status & pencarian |
-| 🔄 **Alur Status** | Transisi linear `belum_ditagih → sudah_ditagih → dibayar` dengan riwayat lengkap & anti lompat status |
-| 📊 **Dashboard** | Ringkasan piutang: total invoice, belum/sudah ditagih, sudah dibayar — dihitung di database |
-| 📈 **Laporan** | Collection report per periode & per sales + **export Excel** |
-| 🧾 **Bukti Bayar** | Upload bukti pembayaran ke Supabase Storage |
-| 🛡️ **Isolasi Data** | Data tiap sales terisolasi — sales A tidak bisa melihat/mengubah invoice sales B |
+| 🔐 **Masuk & daftar akun** | Login, register, lupa/reset password lewat email |
+| 👥 **Dua jenis pengguna** | **Admin** (kelola data & laporan) dan **Sales** (penagihan) |
+| 🧾 **Kelola invoice** | Buat, ubah, hapus, cari, dan filter status tagihan |
+| 📌 **Penugasan sales** | Admin menugaskan/mengalihkan invoice ke sales tertentu |
+| 🔄 **Status penagihan** | Urutan tetap: *Belum Ditagih → Sudah Ditagih → Dibayar*, dengan riwayat otomatis |
+| 🧾 **Bukti bayar** | Sales mengunggah foto bukti sebelum tagihan ditandai Dibayar |
+| 📊 **Dashboard** | Ringkasan piutang: jumlah invoice, pembagian status, total nominal |
+| 📈 **Monitoring** | Pantau seluruh tagihan dengan pencarian dan filter status |
+| 📑 **Laporan + Excel** | Laporan per tanggal dan per sales, bisa diunduh ke file Excel |
+| 👤 **Profil** | Lihat/mengubah nama, ganti password via email, logout |
 
-📖 **Dokumen acuan pengembangan:**
-[`SalesCollect-Product-Backlog.md`](./SalesCollect-Product-Backlog.md) — **apa** yang dibangun dan **mengapa**
+## 👤 Jenis Pengguna
 
----
+**Admin** — mengelola customer, data sales, dan invoice; memantau semua
+penagihan di Dashboard dan Monitoring; membaca laporan dan mengunduh Excel.
 
-## 📚 Daftar Isi
+**Sales** — melihat dashboard dan daftar tagihan milik sendiri; memperbarui
+status penagihan; mengunggah bukti bayar; mengelola profil.
 
-- [Technology Stack](#️-technology-stack)
-- [Menjalankan Project](#-menjalankan-project)
-- [Struktur Folder](#-struktur-folder)
-- [Environment & Keamanan](#-environment--keamanan)
-- [Konfigurasi Supabase Auth](#-konfigurasi-supabase-auth)
-- [Database](#️-database)
-- [Model Keamanan (RLS)](#️-model-keamanan-rls)
-- [Lisensi](#-lisensi)
+> Panduan pemakaian lengkap per peran ada di
+> [docs/USER_GUIDE.md](./docs/USER_GUIDE.md).
 
----
+## 🔄 Alur Singkat Pemakaian
 
-## 🛠️ Technology Stack
-
-| Layer | Teknologi |
-| :--- | :--- |
-| **Frontend** | React Native, Expo, TypeScript, Expo Router |
-| **Backend** | Supabase (Auth, PostgreSQL, RLS, Storage) |
-| **Database** | PostgreSQL dengan Row Level Security |
-
-### 📐 Arsitektur Sistem
-
-```mermaid
-flowchart TD
-    A["📱 React Native<br/>(Expo + TypeScript)"] --> B["🧭 Expo Router<br/>app/ — screens per role"]
-    B --> C["⚙️ Services Layer<br/>services/ — satu-satunya akses data"]
-    C --> D["🔌 Supabase Client<br/>lib/supabase.ts"]
-    D --> E["🔐 Auth<br/>email + password"]
-    D --> F["🐘 PostgreSQL<br/>+ Row Level Security"]
-    D --> G["📦 Storage<br/>bukti bayar"]
+```text
+Admin:  Tambah Customer & Sales  →  Buat Invoice  →  Tugaskan ke Sales
+                    ↓                                    ↓
+        Pantau (Dashboard/Monitoring)          Sales menagih pelanggan
+                    ↓                                    ↓
+        Laporan  →  Unduh Excel           Belum Ditagih → Sudah Ditagih
+                                                        → Dibayar (+ bukti)
 ```
 
-> ℹ️ Tidak ada backend Express/Node.js terpisah — Supabase menangani auth, database, dan storage sekaligus.
+## 🛠️ Teknologi
 
----
+Aplikasi dibangun dengan:
+
+- **React Native + Expo + TypeScript** — aplikasi mobile lintas platform
+- **Expo Router** — struktur layar & navigasi
+- **Supabase (PostgreSQL, Auth, Storage)** — data, login, dan penyimpanan
+  bukti bayar
 
 ## 🚀 Menjalankan Project
 
-**1️⃣ Install dependencies**
+**1. Install dependencies**
 
 ```bash
 npm install
 ```
 
-**2️⃣ Siapkan environment**
+**2. Siapkan environment**
 
 ```bash
 cp .env.example .env
 ```
 
-> Isi `EXPO_PUBLIC_SUPABASE_URL` dan `EXPO_PUBLIC_SUPABASE_ANON_KEY` dari **Supabase Dashboard → Project Settings → API**.
+Isi `EXPO_PUBLIC_SUPABASE_URL` dan `EXPO_PUBLIC_SUPABASE_ANON_KEY` dari
+Supabase Dashboard → Project Settings → API.
 
-**3️⃣ Jalankan aplikasi**
-
-```bash
-npx expo start
-```
-
-**4️⃣ Pengecekan kualitas**
+**3. Jalankan aplikasi**
 
 ```bash
-npm run typecheck   # npx tsc --noEmit
-npm run lint        # npx expo lint
+npm start
 ```
 
----
+Perintah lain: `npm run android`, `npm run ios`, `npm run web`,
+`npm run typecheck`, `npm run lint`.
+
+> Detail instalasi, konfigurasi backend, dan build rilis ada di
+> [docs/DEPLOYMENT_AND_OPERATIONS.md](./docs/DEPLOYMENT_AND_OPERATIONS.md).
 
 ## 📁 Struktur Folder
 
 ```text
 SalesCollect/
-├── app/                  # Route & screen (Expo Router)
-│   ├── (auth)/           # login, register, forgot-password, reset-password
-│   └── (app)/            # protected area
-│       ├── profile.tsx   # profil user (semua role)
-│       ├── admin/        # menu, dashboard, monitoring, reports, customers/, sales/, invoices/
-│       └── sales/        # menu, dashboard, invoices/ (my invoices + detail + update status)
-├── components/           # Reusable UI components (form, selector, badge, dst.)
-├── constants/            # Design system (warna, spacing, typography)
-├── hooks/                # Custom React hooks
-├── lib/                  # Konfigurasi library (Supabase client)
-├── services/             # Data access / service layer
-├── supabase/migrations/  # Database migration SQL
-├── types/                # TypeScript types
-├── utils/                # Helper (error handling, dst.)
-├── assets/               # Gambar/font
-├── .env.example          # Template environment variable
+├── app/                  # Layar aplikasi (per role: auth, admin, sales)
+├── components/           # Komponen UI yang dipakai bersama
+├── hooks/                # Logika bersama (sesi, data, proteksi layar)
+├── services/             # Akses data (satu-satunya pintu ke database)
+├── lib/                  # Konfigurasi Supabase
+├── constants/            # Warna, jarak, dan tipografi
+├── types/ & utils/       # Tipe data & fungsi bantu
+├── supabase/migrations/  # Skema database
+├── docs/                 # Dokumentasi project
 └── package.json
 ```
 
-📌 **Aturan pemakaian:**
+## 📚 Dokumentasi
 
-- Query database hanya lewat `services/`, bukan dari screen.
-- Warna dan spacing selalu dari `constants/theme.ts`.
-- Screen menggunakan component reusable (`Button`, `Input`, `Card`, `Badge`, `Loading`, `EmptyState`, `ErrorState`).
-- Pesan error user diambil dari `utils/error.ts` (`getUserMessage`).
-
----
-
-## 🔒 Environment & Keamanan
-
-`.env` **tidak** masuk ke Git (lihat `.gitignore`).
-
-**Variabel yang dipakai:**
-
-```env
-EXPO_PUBLIC_SUPABASE_URL=
-EXPO_PUBLIC_SUPABASE_ANON_KEY=
-```
-
-> ⛔ **Larangan yang dipatuhi:**
->
-> - Tidak ada service-role key di aplikasi mobile.
-> - Tidak ada password yang disimpan sendiri di database aplikasi.
-> - Tidak ada custom authentication/JWT — password ditangani Supabase Auth.
-> - Tidak ada secret yang di-hardcode di source code.
-
-<details>
-<summary>🧪 Development vs Production</summary>
-
-MVP ini memakai **satu project Supabase** untuk development dan production; environment ditentukan oleh isi `.env` saat build (nilai `EXPO_PUBLIC_*` dibundle ke dalam binary), bukan oleh flag terpisah. Untuk produksi yang benar-benar terpisah:
-
-1. Buat project Supabase production baru (akun Supabase pemilik).
-2. Jalankan semua file `supabase/migrations/` berurutan (reproducible).
-3. Salin `.env.example` → `.env` berisi URL + anon key project production.
-4. Build ulang — nilai lama tidak boleh terbawa ke binary produksi.
-
-Build profile EAS ada di `eas.json`: `development`, `preview`, `production` (masing-masing menandai `EXPO_PUBLIC_ENVIRONMENT`). Jangan pernah menaruh service-role key di `.env` aplikasi.
-
-</details>
-
-<details>
-<summary>🪟 Catatan lingkungan Windows (temuan TB-95 — spesifik mesin dev, bukan bug aplikasi)</summary>
-
-- `gradlew.bat` gagal menemukan `gradle-wrapper.jar` dari path non-ASCII (proyek di OneDrive/`ドキュメント`) — build native dijalankan dari salinan path ASCII, atau langsung via `java -cp gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain`.
-- `GRADLE_USER_HOME` user-level menunjuk ke instalasi scoop (`...\scoop\apps\gradle\current\.gradle`) dan merusak kompilasi Gradle Kotlin DSL (`Unresolved reference 'plugins'`) — build harus meng-override `GRADLE_USER_HOME` ke direktori bersih.
-- NDK membutuhkan path proyek pendek (batas path panjang Windows) — gunakan root pendek seperti `C:\sc\SalesCollect` untuk build native.
-
-</details>
-
----
-
-## 🔑 Konfigurasi Supabase Auth
-
-Alur lupa/reset password mengirim link email dengan redirect `Linking.createURL('reset-password')` (lihat `services/authService.ts`):
-
-| Lingkungan | Redirect URL |
+| Dokumen | Isi |
 | :--- | :--- |
-| **Development** (Expo Go / dev client) | `exp://<host>:<port>/--/reset-password` |
-| **Production** (scheme `salescollect` di `app.json`) | `salescollect://reset-password` |
+| [docs/PRODUCT_BACKLOG.md](./docs/PRODUCT_BACKLOG.md) | **Apa** yang dibangun dan **mengapa** — tujuan, lingkup, fitur |
+| [docs/USER_GUIDE.md](./docs/USER_GUIDE.md) | Panduan pemakaian untuk Admin & Sales |
+| [docs/USE_CASE_AND_FLOWS.md](./docs/USE_CASE_AND_FLOWS.md) | Daftar use case & alur pengguna |
+| [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | Struktur aplikasi & alur kerja |
+| [docs/DATABASE_AND_STATE.md](./docs/DATABASE_AND_STATE.md) | Skema database & pengelolaan state |
+| [docs/API_AND_SECURITY.md](./docs/API_AND_SECURITY.md) | Integrasi backend & model hak akses |
+| [docs/DEPLOYMENT_AND_OPERATIONS.md](./docs/DEPLOYMENT_AND_OPERATIONS.md) | Instalasi, build, dan troubleshooting |
+| [docs/TESTING.md](./docs/TESTING.md) | Status pengujian & checklist |
+| [docs/CHANGELOG.md](./docs/CHANGELOG.md) | Riwayat perubahan |
 
-> ⚠️ Daftarkan URL tersebut di **Supabase Dashboard → Authentication → URL Configuration → Redirect URLs** sebelum memakai fitur "Lupa Password".
+## 👩‍💻 Pengembang
 
-Register/login murni email + password (Supabase Auth). Sesi disimpan oleh Supabase Auth client di device (AsyncStorage) — aplikasi tidak pernah menyimpan password atau membuat JWT sendiri. Setelah register, trigger `handle_new_user()` (migration 010) membuat row `profiles` dengan role `sales` (role dinaikkan manual oleh admin).
+**jihangaluh** — [github.com/JihanGaluhPutri](https://github.com/JihanGaluhPutri)
 
----
+Repository:
 
-## 🗄️ Database
-
-Migration berada di `supabase/migrations/` dan berurutan sesuai dependency:
-
-| File | Isi |
-| :--- | :--- |
-| `001_enums.sql` | Enum `user_role`, `invoice_status` |
-| `002_profiles.sql` | Tabel `profiles` + trigger `updated_at` |
-| `003_sales.sql` | Tabel `sales` |
-| `004_customers.sql` | Tabel `customers` |
-| `005_invoices.sql` | Tabel `invoices` |
-| `006_invoice_status_history.sql` | Tabel `invoice_status_history` |
-| `007_indexes.sql` | Index untuk filter/search/ownership |
-| `008_constraints.sql` | Unique, check, dan constraint lainnya |
-| `009_rls_policies.sql` | Helper function, RLS, dan policies |
-| `010_profile_trigger.sql` | Trigger `handle_new_user()` → profile otomatis (role `sales`) |
-| `011_status_update_rpc.sql` | RPC `update_invoice_status()` (transisi linear + history) |
-| `012_dashboard_report_functions.sql` | RPC agregasi `dashboard_summary()`, `collection_report_summary()`, `collection_report_by_sales()` |
-
-### ⚡ Cara menerapkan migration
-
-<details>
-<summary>Opsi A — Supabase SQL Editor</summary>
-
-Buka SQL Editor Supabase, jalankan file migration **berurutan** dari `001` sampai `012`.
-
-</details>
-
-<details>
-<summary>Opsi B — Supabase CLI</summary>
-
-```bash
-supabase init          # sekali saja, menghasilkan supabase/config.toml
-supabase link --project-ref <project-ref>
-supabase db push
-```
-
-</details>
-
-> ⚠️ Migration harus selalu ditambahkan sebagai file SQL — jangan mengubah schema hanya lewat SQL editor tanpa mencatatnya di `supabase/migrations`.
-
-### 📊 Ringkasan schema
-
-```mermaid
-erDiagram
-    auth_users ||--o| profiles : "1:1 (trigger)"
-    profiles ||--o| sales : "1:1"
-    sales ||--o{ invoices : "miliki"
-    customers ||--o{ invoices : "ditagih"
-    invoices ||--o{ invoice_status_history : "riwayat"
-```
-
-```text
-auth.users
-   │
-   └── profiles (id, name, role, created_at, updated_at)
-         │
-         └── sales (id, user_id, name, phone, is_active, ...)
-               │
-               └── invoices (id, invoice_number, customer_id, sales_id,
-                             amount, invoice_date, due_date, status, notes)
-                     │
-                     ├── customers (id, name, owner_name, phone, address)
-                     │
-                     └── invoice_status_history (id, invoice_id, old_status,
-                                                 new_status, changed_by, changed_at)
-```
-
----
-
-## 🛡️ Model Keamanan (RLS)
-
-| Actor | `profiles` | `sales` | `customers` | `invoices` | `invoice_status_history` |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Admin** | baca/tulis semua | baca/tulis semua | baca/tulis semua | baca/tulis/hapus | baca |
-| **Sales** | baca/tulis profil sendiri | baca record sendiri | baca customer invoice miliknya | baca + update invoice miliknya | baca history invoice miliknya |
-| **Sales A vs Sales B** | terpisah | terpisah | terpisah | **terisolasi** | terisolasi |
-| **Tanpa login (anon)** | tidak ada privilege | tidak ada | tidak ada | tidak ada | tidak ada |
-
-Kepemilikan invoice ditegakkan di database:
-
-```sql
-invoices.sales_id = sales.id
-WHERE sales.user_id = auth.uid()
-```
-
-Frontend menyembunyikan menu hanyalah lapisan UX.
-Security sebenarnya: **Supabase RLS + database constraints**.
-
-### 🔄 Perubahan status invoice
-
-Update status (sales, screen `sales/invoices/[id]`) hanya lewat RPC `update_invoice_status(invoice_id, new_status)` (migration 011):
-
-- Transisi linear: `belum_ditagih → sudah_ditagih → dibayar`. Mundur, lompat, dan status sama ditolak dengan pesan error.
-- Setiap perubahan menulis `invoice_status_history` (changed_by = pelaku).
-- Row history **tidak bisa** di-INSERT/UPDATE/DELETE langsung oleh klien (baik sales maupun admin) — hanya via fungsi SECURITY DEFINER.
-
-### 📈 Dashboard & report (agregasi database)
-
-Angka dashboard dan collection report dihitung **di database**, bukan diunduh seluruhnya ke device. Tiga fungsi SQL (migration 012), semuanya `SECURITY INVOKER` sehingga hasilnya otomatis ter-scope oleh RLS:
-
-- `dashboard_summary()` — total invoice, belum/sudah ditagih, dibayar, total nominal. Sales hanya melihat invoice miliknya; admin semua.
-- `collection_report_summary(p_start, p_end)` — ringkasan periode (filter `invoice_date`).
-- `collection_report_by_sales(p_start, p_end)` — rincian per sales (diurutkan nama, **tanpa ranking/skor performa**).
-
-Execute hanya untuk role `authenticated` — anon ditolak. Aplikasi menolak rentang tanggal yang salah (mulai > akhir) di client sebelum query dijalankan.
+- Kelas: [UNUGHA-Informatika-26/SalesCollect](https://github.com/UNUGHA-Informatika-26/SalesCollect)
+- Utama: [JihanGaluhPutri/Aplikasi-Sales-Collect](https://github.com/JihanGaluhPutri/Aplikasi-Sales-Collect)
 
 ---
 
@@ -306,6 +160,7 @@ Execute hanya untuk role `authenticated` — anon ditolak. Aplikasi menolak rent
 ## 📄 Lisensi
 
 Proyek ini dilisensikan di bawah [MIT License](./LICENSE).
-Bebas dikembangkan, dimodifikasi, dan disesuaikan untuk kebutuhan manajemen penagihan internal maupun operasional lainnya.
+Bebas dikembangkan, dimodifikasi, dan disesuaikan untuk kebutuhan
+manajemen penagihan internal maupun operasional lainnya.
 
 </div>
