@@ -145,37 +145,7 @@ EXPO_PUBLIC_SUPABASE_URL=
 EXPO_PUBLIC_SUPABASE_ANON_KEY=
 ```
 
-> ⛔ **Larangan yang dipatuhi:**
->
-> - Tidak ada service-role key di aplikasi mobile.
-> - Tidak ada password yang disimpan sendiri di database aplikasi.
-> - Tidak ada custom authentication/JWT — password ditangani Supabase Auth.
-> - Tidak ada secret yang di-hardcode di source code.
-
 <details>
-<summary>🧪 Development vs Production</summary>
-
-MVP ini memakai **satu project Supabase** untuk development dan production; environment ditentukan oleh isi `.env` saat build (nilai `EXPO_PUBLIC_*` dibundle ke dalam binary), bukan oleh flag terpisah. Untuk produksi yang benar-benar terpisah:
-
-1. Buat project Supabase production baru (akun Supabase pemilik).
-2. Jalankan semua file `supabase/migrations/` berurutan (reproducible).
-3. Salin `.env.example` → `.env` berisi URL + anon key project production.
-4. Build ulang — nilai lama tidak boleh terbawa ke binary produksi.
-
-Build profile EAS ada di `eas.json`: `development`, `preview`, `production` (masing-masing menandai `EXPO_PUBLIC_ENVIRONMENT`). Jangan pernah menaruh service-role key di `.env` aplikasi.
-
-</details>
-
-<details>
-<summary>🪟 Catatan lingkungan Windows (temuan TB-95 — spesifik mesin dev, bukan bug aplikasi)</summary>
-
-- `gradlew.bat` gagal menemukan `gradle-wrapper.jar` dari path non-ASCII (proyek di OneDrive/`ドキュメント`) — build native dijalankan dari salinan path ASCII, atau langsung via `java -cp gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain`.
-- `GRADLE_USER_HOME` user-level menunjuk ke instalasi scoop (`...\scoop\apps\gradle\current\.gradle`) dan merusak kompilasi Gradle Kotlin DSL (`Unresolved reference 'plugins'`) — build harus meng-override `GRADLE_USER_HOME` ke direktori bersih.
-- NDK membutuhkan path proyek pendek (batas path panjang Windows) — gunakan root pendek seperti `C:\sc\SalesCollect` untuk build native.
-
-</details>
-
----
 
 ## 🔑 Konfigurasi Supabase Auth
 
